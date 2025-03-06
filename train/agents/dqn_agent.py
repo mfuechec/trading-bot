@@ -114,25 +114,35 @@ class DQNAgent:
         try:
             print(f"Current working directory: {os.getcwd()}")
             print(f"Attempting to save weights to: {BEST_WEIGHTS_FILE}")
+            
+            # Ensure we're using the absolute path
+            abs_path = os.path.abspath(BEST_WEIGHTS_FILE)
+            print(f"Absolute path: {abs_path}")
+            
             # Create directory if it doesn't exist
-            if os.path.exists(BEST_WEIGHTS_FILE):
-                self.model.save_weights(BEST_WEIGHTS_FILE)
-                print("Successfully saved weights")
-            else:
-                print("Failed to save weights")
+            os.makedirs(os.path.dirname(abs_path), exist_ok=True)
+            
+            # Save using absolute path
+            self.model.save_weights(abs_path)
+            print("Successfully saved weights")
         except Exception as e:
             print(f"Error saving weights: {str(e)}")
+            print(f"Stack trace:", exc_info=True)
 
     def load_checkpoint(self, name):
         """Load the model checkpoint"""
         try:
-            print(f"Attempting to load weights from: {BEST_WEIGHTS_FILE}")
-            if os.path.exists(BEST_WEIGHTS_FILE):
-                self.model.load_weights(BEST_WEIGHTS_FILE)
+            # Ensure we're using the absolute path
+            abs_path = os.path.abspath(BEST_WEIGHTS_FILE)
+            print(f"Attempting to load weights from: {abs_path}")
+            
+            if os.path.exists(abs_path):
+                self.model.load_weights(abs_path)
                 print("Successfully loaded weights")
                 return True
-            print("No weights file found")
+            print(f"No weights file found at: {abs_path}")
             return False
         except Exception as e:
             print(f"Error loading weights: {str(e)}")
+            print(f"Stack trace:", exc_info=True)
             return False 
