@@ -14,17 +14,17 @@ DRIVE_PATH = BASE_PATH
 HISTORY_FILE = os.path.join(DRIVE_PATH, "training_history.json")
 RESULTS_FILE = os.path.join(DRIVE_PATH, "daily_results.json")
 CHECKPOINT_DIR = os.path.join(DRIVE_PATH, "checkpoints")
-BEST_WEIGHTS_FILE = os.path.join(DRIVE_PATH, "best_weights.h5")
+BEST_WEIGHTS_FILE = os.path.join(CHECKPOINT_DIR, "best.weights.h5")
 
 def create_directories():
     """Create all required directories if they don't exist"""
-    directories = [DRIVE_PATH, CHECKPOINT_DIR, BEST_WEIGHTS_FILE]
+    directories = [DRIVE_PATH, CHECKPOINT_DIR]  # Only create directories, not files
     for directory in directories:
         os.makedirs(directory, exist_ok=True)
         print(f"Verified directory exists: {directory}")
 
 # Export the function
-__all__ = ['create_directories', 'DRIVE_PATH', 'HISTORY_FILE', 'RESULTS_FILE', 'CHECKPOINT_DIR']
+__all__ = ['create_directories', 'DRIVE_PATH', 'HISTORY_FILE', 'RESULTS_FILE', 'CHECKPOINT_DIR', 'BEST_WEIGHTS_FILE']
 
 # Initialize directories when config is imported
 create_directories()

@@ -7,7 +7,7 @@ from tensorflow.keras.layers import Dense, Input
 from tensorflow.keras.optimizers import Adam
 import random
 import tensorflow as tf
-from train.utils.config import CHECKPOINT_DIR
+from train.utils.config import CHECKPOINT_DIR, BEST_WEIGHTS_FILE
 
 class DQNAgent:
     def __init__(self, state_size, action_size):
@@ -104,17 +104,13 @@ class DQNAgent:
 
     def save_checkpoint(self, name):
         """Save the model checkpoint"""
-        # Use absolute path from config
-        weights_path = os.path.join(CHECKPOINT_DIR, f"{name}.weights.h5")
-        print(f"Saving weights to: {weights_path}")
-        self.model.save_weights(weights_path)
+        print(f"Saving weights to: {BEST_WEIGHTS_FILE}")
+        self.model.save_weights(BEST_WEIGHTS_FILE)
 
     def load_checkpoint(self, name):
         """Load the model checkpoint"""
-        # Use absolute path from config
-        weights_path = os.path.join(CHECKPOINT_DIR, f"{name}.weights.h5")
-        if os.path.exists(weights_path):
-            print(f"Loading weights from: {weights_path}")
-            self.model.load_weights(weights_path)
+        if os.path.exists(BEST_WEIGHTS_FILE):
+            print(f"Loading weights from: {BEST_WEIGHTS_FILE}")
+            self.model.load_weights(BEST_WEIGHTS_FILE)
             return True
         return False 
