@@ -14,7 +14,7 @@ DRIVE_PATH = BASE_PATH
 HISTORY_FILE = os.path.join(DRIVE_PATH, "training_history.json")
 RESULTS_FILE = os.path.join(DRIVE_PATH, "daily_results.json")
 CHECKPOINT_DIR = os.path.join(DRIVE_PATH, "checkpoints")
-BEST_WEIGHTS_FILE = os.path.join(CHECKPOINT_DIR, "best.weights.h5")
+BEST_WEIGHTS_FILE = os.path.join(DRIVE_PATH, "checkpoints/best.weights.h5")
 
 # After setting up paths
 print("\nPath Configuration:")
@@ -26,12 +26,19 @@ print(f"BEST_WEIGHTS_FILE: {BEST_WEIGHTS_FILE}")
 def create_directories():
     """Create all required directories if they don't exist"""
     directories = [DRIVE_PATH, CHECKPOINT_DIR]
+    files = [BEST_WEIGHTS_FILE]
     for directory in directories:
         try:
             os.makedirs(directory, exist_ok=True)
             print(f"Successfully created/verified directory: {directory}")
         except Exception as e:
             print(f"Error creating directory {directory}: {str(e)}")
+    for file in files:
+        try:
+            with open(file, 'w') as f:
+                pass
+        except Exception as e:
+            print(f"Error creating file {file}: {str(e)}")
 
 # Export the function
 __all__ = ['create_directories', 'DRIVE_PATH', 'HISTORY_FILE', 'RESULTS_FILE', 'CHECKPOINT_DIR', 'BEST_WEIGHTS_FILE']
