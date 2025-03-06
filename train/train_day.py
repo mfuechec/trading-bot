@@ -162,7 +162,7 @@ def train_day():
         # Save if validation performance improved
         if val_reward > best_val_reward:
             best_val_reward = val_reward
-            agent.save_checkpoint(BEST_WEIGHTS_FILE)
+            agent.save_checkpoint('best')
             print(f"\nNew best validation reward: {float(val_reward):.2f}")
         
         print(f"\nEpisode {episode + 1}/{episodes}")
