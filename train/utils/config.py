@@ -22,7 +22,10 @@ def create_directories():
         os.makedirs(directory, exist_ok=True)
         print(f"Verified directory exists: {directory}")
 
-# Call this when config is imported
+# Export the function
+__all__ = ['create_directories', 'DRIVE_PATH', 'HISTORY_FILE', 'RESULTS_FILE', 'CHECKPOINT_DIR']
+
+# Initialize directories when config is imported
 create_directories()
 
 # Training parameters
