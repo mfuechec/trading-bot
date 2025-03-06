@@ -102,10 +102,14 @@ class DQNAgent:
             self.update_target_model()
 
     def save_checkpoint(self, name):
-        """Save the model weights"""
-        if not os.path.exists('checkpoints'):
-            os.makedirs('checkpoints')
-        self.model.save_weights(f'checkpoints/{name}.weights.h5')  # Added .weights before .h5
+        """Save the model checkpoint"""
+        checkpoint_dir = os.path.dirname(name)
+        if checkpoint_dir:
+            os.makedirs(checkpoint_dir, exist_ok=True)
+        
+        weights_path = f"{name}.weights.h5"
+        print(f"Saving weights to: {weights_path}")
+        self.model.save_weights(weights_path)
 
     def load_checkpoint(self, name):
         """Load the model weights"""

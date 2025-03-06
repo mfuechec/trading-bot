@@ -7,17 +7,24 @@ try:
     BASE_PATH = "/content/drive/MyDrive/trading_bot"
 except ImportError:
     IN_COLAB = False
-    BASE_PATH = os.getcwd()  # Use current directory if not in Colab
+    BASE_PATH = os.getcwd()
 
-# File paths
+# File paths (remove any leading slashes)
 DRIVE_PATH = BASE_PATH
 HISTORY_FILE = os.path.join(DRIVE_PATH, "training_history.json")
 RESULTS_FILE = os.path.join(DRIVE_PATH, "daily_results.json")
 CHECKPOINT_DIR = os.path.join(DRIVE_PATH, "checkpoints")
 
-# Create directories if they don't exist
-os.makedirs(DRIVE_PATH, exist_ok=True)
-os.makedirs(CHECKPOINT_DIR, exist_ok=True)
+# Create all necessary directories
+def create_directories():
+    """Create all required directories if they don't exist"""
+    directories = [DRIVE_PATH, CHECKPOINT_DIR]
+    for directory in directories:
+        os.makedirs(directory, exist_ok=True)
+        print(f"Verified directory exists: {directory}")
+
+# Call this when config is imported
+create_directories()
 
 # Training parameters
 EPISODES = 50
