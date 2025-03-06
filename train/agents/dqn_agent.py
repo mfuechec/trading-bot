@@ -115,9 +115,11 @@ class DQNAgent:
             print(f"Current working directory: {os.getcwd()}")
             print(f"Attempting to save weights to: {BEST_WEIGHTS_FILE}")
             # Create directory if it doesn't exist
-            os.makedirs(os.path.dirname(BEST_WEIGHTS_FILE), exist_ok=True)
-            self.model.save_weights(BEST_WEIGHTS_FILE)
-            print("Successfully saved weights")
+            if os.path.exists(BEST_WEIGHTS_FILE):
+                self.model.save_weights(BEST_WEIGHTS_FILE)
+                print("Successfully saved weights")
+            else:
+                print("Failed to save weights")
         except Exception as e:
             print(f"Error saving weights: {str(e)}")
 
