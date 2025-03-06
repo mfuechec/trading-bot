@@ -111,13 +111,26 @@ class DQNAgent:
 
     def save_checkpoint(self, name):
         """Save the model checkpoint"""
-        print(f"Saving weights to: {BEST_WEIGHTS_FILE}")
-        self.model.save_weights(BEST_WEIGHTS_FILE)
+        try:
+            print(f"Current working directory: {os.getcwd()}")
+            print(f"Attempting to save weights to: {BEST_WEIGHTS_FILE}")
+            # Create directory if it doesn't exist
+            os.makedirs(os.path.dirname(BEST_WEIGHTS_FILE), exist_ok=True)
+            self.model.save_weights(BEST_WEIGHTS_FILE)
+            print("Successfully saved weights")
+        except Exception as e:
+            print(f"Error saving weights: {str(e)}")
 
     def load_checkpoint(self, name):
         """Load the model checkpoint"""
-        if os.path.exists(BEST_WEIGHTS_FILE):
-            print(f"Loading weights from: {BEST_WEIGHTS_FILE}")
-            self.model.load_weights(BEST_WEIGHTS_FILE)
-            return True
-        return False 
+        try:
+            print(f"Attempting to load weights from: {BEST_WEIGHTS_FILE}")
+            if os.path.exists(BEST_WEIGHTS_FILE):
+                self.model.load_weights(BEST_WEIGHTS_FILE)
+                print("Successfully loaded weights")
+                return True
+            print("No weights file found")
+            return False
+        except Exception as e:
+            print(f"Error loading weights: {str(e)}")
+            return False 
