@@ -11,8 +11,11 @@ from train.utils.config import BEST_WEIGHTS_FILE
 
 class DQNAgent:
     def __init__(self, state_size, action_size):
-        self.state_size = state_size  # No need to add 2, it's included in STATE_SIZE
+        print("\n=== Initializing DQNAgent ===")
+        self.state_size = state_size
         self.action_size = action_size
+        print(f"State size: {state_size}, Action size: {action_size}")
+        
         self.memory = []
         self.gamma = 0.95    # discount rate
         self.epsilon = 1.0   # exploration rate
@@ -22,10 +25,15 @@ class DQNAgent:
         self.batch_size = 32
         
         # Create an empty weights file if it doesn't exist
+        print(f"\nChecking for weights file at: {BEST_WEIGHTS_FILE}")
         if not os.path.exists(BEST_WEIGHTS_FILE):
-            print(f"Creating initial weights file at: {BEST_WEIGHTS_FILE}")
+            print("No weights file found, creating initial weights...")
             model = self._build_model()
+            os.makedirs(os.path.dirname(BEST_WEIGHTS_FILE), exist_ok=True)
             model.save_weights(BEST_WEIGHTS_FILE)
+            print("Initial weights saved successfully")
+        else:
+            print("Existing weights file found")
         
         self.model = self._build_model()
         self.target_model = self._build_model()
@@ -112,19 +120,28 @@ class DQNAgent:
     def save_checkpoint(self, name):
         """Save the model checkpoint"""
         try:
-            print(f"Saving weights to: {BEST_WEIGHTS_FILE}")
+            print(f"\n=== Saving Checkpoint ===")
+            print(f"Current working directory: {os.getcwd()}")
+            print(f"Attempting to save weights to: {BEST_WEIGHTS_FILE}")
+            
             # Create directory if it doesn't exist
             os.makedirs(os.path.dirname(BEST_WEIGHTS_FILE), exist_ok=True)
             self.model.save_weights(BEST_WEIGHTS_FILE)
             print("Successfully saved weights")
         except Exception as e:
             print(f"Error saving weights: {str(e)}")
+            import traceback
+            print(traceback.format_exc())
 
     def load_checkpoint(self, name):
         """Load the model checkpoint"""
         try:
+            print(f"\n=== Loading Checkpoint ===")
+            print(f"Current working directory: {os.getcwd()}")
             print(f"Attempting to load weights from: {BEST_WEIGHTS_FILE}")
+            
             if os.path.exists(BEST_WEIGHTS_FILE):
+                print("Found weights file, loading...")
                 self.model.load_weights(BEST_WEIGHTS_FILE)
                 print("Successfully loaded weights")
                 return True

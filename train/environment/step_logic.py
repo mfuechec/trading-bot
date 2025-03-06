@@ -41,21 +41,18 @@ def process_step(env, action):
             
             # Check win/loss/timeout conditions
             if price_change >= 0.50:  # Win at $0.50 gain
-                print("WIN condition met!")
                 reward = WIN_REWARD
                 positions_to_remove.append(position)
                 print(f"WIN: {position['type']} position closed. ${price_change:.2f} P/L")
             elif price_change <= -0.50:  # Loss at $0.50 loss
-                print("LOSS condition met!")
                 reward = LOSS_PENALTY
                 positions_to_remove.append(position)
                 print(f"LOSS: {position['type']} position closed. ${price_change:.2f} P/L")
             elif elapsed_time >= env.TRADE_DURATION:  # Timeout
-                print("TIMEOUT condition met!")
                 reward = price_change / 10
                 positions_to_remove.append(position)
                 print(f"TIMEOUT: {position['type']} position closed. ${price_change:.2f} P/L")
-            else:
+            elif FeatureFlags.DEBUG_POSITION_REMAINS_OPEN:
                 print("No conditions met - position remains open")
     
     # Process new action (removed elif to allow multiple positions)
@@ -75,7 +72,7 @@ def process_step(env, action):
             env.open_position(position_type, current_price, env.current_step)
             print(f"Opening {position_type} position at price {current_price:.2f}")
             reward = 0
-        else:
+        elif FeatureFlags.ACTION_NOT_ALIGNED_WITH_TREND:
             print(f"Action {action} not aligned with trend {trend}")
             reward = -0.1
     

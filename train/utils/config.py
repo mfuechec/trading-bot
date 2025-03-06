@@ -1,5 +1,9 @@
 import os
 
+# At the very start of the file, after imports
+print("\n=== Loading Config ===")
+print(f"Current working directory: {os.getcwd()}")
+
 # Check if running in Colab
 try:
     from google.colab import drive
@@ -16,8 +20,8 @@ RESULTS_FILE = os.path.join(DRIVE_PATH, "daily_results.json")
 CHECKPOINT_DIR = os.path.join(DRIVE_PATH, "checkpoints")
 BEST_WEIGHTS_FILE = os.path.join(CHECKPOINT_DIR, "best.weights.h5")
 
-# After setting up paths
-print("\nPath Configuration:")
+# After setting paths
+print("\n=== Path Configuration ===")
 print(f"BASE_PATH: {BASE_PATH}")
 print(f"DRIVE_PATH: {DRIVE_PATH}")
 print(f"CHECKPOINT_DIR: {CHECKPOINT_DIR}")

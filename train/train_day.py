@@ -90,9 +90,11 @@ def train_day():
                         mode='test')
     
     # Initialize or load agent
+    print("\n=== Creating DQN Agent ===")
     agent = DQNAgent(STATE_SIZE, ACTION_SIZE)
     
     # Try to load previous checkpoint
+    print("\n=== Loading Previous Checkpoint ===")
     if not agent.load_checkpoint(BEST_WEIGHTS_FILE):
         print("No previous checkpoint found. Starting fresh training.")
     
