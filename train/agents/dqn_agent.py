@@ -123,17 +123,16 @@ class DQNAgent:
     def load_checkpoint(self, name):
         """Load the model checkpoint"""
         try:
-            # Ensure we're using the absolute path
-            abs_path = os.path.abspath(BEST_WEIGHTS_FILE)
-            print(f"Attempting to load weights from: {abs_path}")
-            
-            if os.path.exists(abs_path):
-                self.model.load_weights(abs_path)
+            print(f"Attempting to load weights from: {BEST_WEIGHTS_FILE}")
+            if os.path.exists(BEST_WEIGHTS_FILE):
+                self.model.load_weights(BEST_WEIGHTS_FILE)
                 print("Successfully loaded weights")
                 return True
-            print(f"No weights file found at: {abs_path}")
+            print(f"No weights file found at: {BEST_WEIGHTS_FILE}")
             return False
         except Exception as e:
+            import traceback
             print(f"Error loading weights: {str(e)}")
-            print(f"Stack trace:", exc_info=True)
+            print("Stack trace:")
+            print(traceback.format_exc())
             return False 

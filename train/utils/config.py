@@ -14,7 +14,7 @@ DRIVE_PATH = BASE_PATH
 HISTORY_FILE = os.path.join(DRIVE_PATH, "training_history.json")
 RESULTS_FILE = os.path.join(DRIVE_PATH, "daily_results.json")
 CHECKPOINT_DIR = os.path.join(DRIVE_PATH, "checkpoints")
-BEST_WEIGHTS_FILE = os.path.join(DRIVE_PATH, "checkpoints/best.weights.h5")
+BEST_WEIGHTS_FILE = os.path.join(CHECKPOINT_DIR, "best.weights.h5")
 
 # After setting up paths
 print("\nPath Configuration:")
