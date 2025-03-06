@@ -15,7 +15,6 @@ HISTORY_FILE = os.path.join(DRIVE_PATH, "training_history.json")
 RESULTS_FILE = os.path.join(DRIVE_PATH, "daily_results.json")
 CHECKPOINT_DIR = os.path.join(DRIVE_PATH, "checkpoints")
 
-# Create all necessary directories
 def create_directories():
     """Create all required directories if they don't exist"""
     directories = [DRIVE_PATH, CHECKPOINT_DIR]
