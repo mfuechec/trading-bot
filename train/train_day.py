@@ -11,7 +11,8 @@ from train.utils.config import (
     MAX_TRADES,
     HISTORY_FILE, 
     RESULTS_FILE, 
-    CHECKPOINT_DIR
+    CHECKPOINT_DIR,
+    BEST_WEIGHTS_FILE
 )
 from train.utils.indicators import prepare_features
 
@@ -92,7 +93,7 @@ def train_day():
     agent = DQNAgent(STATE_SIZE, ACTION_SIZE)
     
     # Try to load previous checkpoint
-    if not agent.load_checkpoint('best'):
+    if not agent.load_checkpoint(BEST_WEIGHTS_FILE):
         print("No previous checkpoint found. Starting fresh training.")
     
     # Train for this day
@@ -161,7 +162,7 @@ def train_day():
         # Save if validation performance improved
         if val_reward > best_val_reward:
             best_val_reward = val_reward
-            agent.save_checkpoint('best')
+            agent.save_checkpoint(BEST_WEIGHTS_FILE)
             print(f"\nNew best validation reward: {float(val_reward):.2f}")
         
         print(f"\nEpisode {episode + 1}/{episodes}")

@@ -20,6 +20,13 @@ class DQNAgent:
         self.epsilon_decay = 0.995
         self.learning_rate = 0.001
         self.batch_size = 32
+        
+        # Create an empty weights file if it doesn't exist
+        if not os.path.exists(BEST_WEIGHTS_FILE):
+            print(f"Creating initial weights file at: {BEST_WEIGHTS_FILE}")
+            model = self._build_model()
+            model.save_weights(BEST_WEIGHTS_FILE)
+        
         self.model = self._build_model()
         self.target_model = self._build_model()
         self.update_target_model()
