@@ -9,7 +9,7 @@ except ImportError:
     IN_COLAB = False
     BASE_PATH = os.getcwd()
 
-# File paths (remove any leading slashes)
+# File paths (use absolute paths)
 DRIVE_PATH = BASE_PATH
 HISTORY_FILE = os.path.join(DRIVE_PATH, "training_history.json")
 RESULTS_FILE = os.path.join(DRIVE_PATH, "daily_results.json")
