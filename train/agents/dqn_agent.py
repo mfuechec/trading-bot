@@ -60,12 +60,8 @@ class DQNAgent:
     def act(self, state, training=True):
         if training and np.random.rand() <= self.epsilon:
             return np.random.randint(self.action_size)
-        state = np.array(state).reshape(1, -1)
-        try:
-            with tf.device('/GPU:0'):  # Try to use GPU
-                act_values = self.model.predict(state, verbose=0)
-        except:
-            act_values = self.model.predict(state, verbose=0)  # Fallback to CPU
+        state = np.array(state).reshape(1, -1)  # Ensure correct shape
+        act_values = self.model.predict(state, verbose=0)
         return np.argmax(act_values[0])
 
     def train(self):
@@ -78,29 +74,30 @@ class DQNAgent:
         next_states = np.zeros((self.batch_size, self.state_size))
         actions, rewards, dones = [], [], []
 
+        # Debug print to check state shape
+        # print(f"First state shape: {self.memory[0][0].shape}")
+
         # Prepare batch data
         for i, idx in enumerate(minibatch):
             state, action, reward, next_state, done = self.memory[idx]
+            # Ensure state is the correct size
+            if len(state) != self.state_size:
+                print(f"Warning: State size mismatch. Expected {self.state_size}, got {len(state)}")
+                continue
             states[i] = state
             next_states[i] = next_state
             actions.append(action)
-            rewards.append(float(reward))
+            rewards.append(float(reward))  # Convert reward to scalar
             dones.append(done)
 
         # Convert to numpy arrays
         actions = np.array(actions)
-        rewards = np.array(rewards, dtype=np.float32)
+        rewards = np.array(rewards, dtype=np.float32)  # Ensure float type
         dones = np.array(dones)
 
-        try:
-            with tf.device('/GPU:0'):  # Try to use GPU
-                # Batch predictions
-                target = self.model.predict(states, verbose=0)
-                next_target = self.target_model.predict(next_states, verbose=0)
-        except:
-            # Fallback to CPU
-            target = self.model.predict(states, verbose=0)
-            next_target = self.target_model.predict(next_states, verbose=0)
+        # Predict Q-values
+        target = self.model.predict(states, verbose=0)
+        next_target = self.target_model.predict(next_states, verbose=0)
 
         # Update Q-values
         for i in range(self.batch_size):
@@ -110,7 +107,7 @@ class DQNAgent:
                 target[i][actions[i]] = rewards[i] + self.gamma * np.amax(next_target[i])
 
         # Train the model
-        self.model.fit(states, target, epochs=1, verbose=0, batch_size=self.batch_size)
+        self.model.fit(states, target, epochs=1, verbose=0)
 
         # Update epsilon
         if self.epsilon > self.epsilon_min:
