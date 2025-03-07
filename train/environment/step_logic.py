@@ -42,14 +42,17 @@ def process_step(env, action):
             # Check win/loss/timeout conditions
             if price_change >= 0.50:  # Win at $0.50 gain
                 reward = WIN_REWARD
+                env.close_position(position, current_price)  # Update balance
                 positions_to_remove.append(position)
                 print(f"WIN: {position['type']} position closed. ${price_change:.2f} P/L")
             elif price_change <= -0.50:  # Loss at $0.50 loss
                 reward = LOSS_PENALTY
+                env.close_position(position, current_price)  # Update balance
                 positions_to_remove.append(position)
                 print(f"LOSS: {position['type']} position closed. ${price_change:.2f} P/L")
             elif elapsed_time >= env.TRADE_DURATION:  # Timeout
                 reward = price_change / 10
+                env.close_position(position, current_price)  # Update balance
                 positions_to_remove.append(position)
                 print(f"TIMEOUT: {position['type']} position closed. ${price_change:.2f} P/L")
             elif FeatureFlags.DEBUG_POSITION_REMAINS_OPEN:

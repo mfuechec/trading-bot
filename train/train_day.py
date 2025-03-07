@@ -12,7 +12,10 @@ from train.utils.config import (
     HISTORY_FILE, 
     RESULTS_FILE, 
     CHECKPOINT_DIR,
-    BEST_WEIGHTS_FILE
+    BEST_WEIGHTS_FILE,
+    TRAIN_EPISODES,
+    VALIDATION_INTERVAL,
+    TRAINING_INTERVAL
 )
 from train.utils.indicators import prepare_features
 
@@ -102,11 +105,10 @@ def train_day():
     print("\nStarting training...")
     best_val_reward = float('-inf')
     total_reward = 0
-    episodes = 100  # Number of episodes to train
     
-    for episode in range(episodes):
+    for episode in range(TRAIN_EPISODES):
         # Training episode
-        print(f"\n=== Training Episode {episode + 1}/{episodes} ===")
+        print(f"\n=== Training Episode {episode + 1}/{TRAIN_EPISODES} ===")
         state = train_env.reset()
         done = False
         episode_reward = 0
@@ -124,8 +126,8 @@ def train_day():
                 print("Trade limit verification failed!")
                 break
             
-            # Train on past experiences
-            if len(agent.memory) > agent.batch_size:
+            # Train less frequently
+            if len(agent.memory) > agent.batch_size and steps % TRAINING_INTERVAL == 0:
                 agent.train()
             
             if steps % 100 == 0:
@@ -133,43 +135,19 @@ def train_day():
         
         total_reward += episode_reward
         
-        # Single Validation episode after each training episode
-        print(f"\n=== Validation Episode {episode + 1}/{episodes} ===")
-        val_reward = 0
-        state = val_env.reset() if episode == 0 else next_state  # Only reset on first episode
-        done = False
-        val_steps = 0
+        # Run validation less frequently
+        if episode % VALIDATION_INTERVAL == 0:
+            print(f"\n=== Validation Episode {episode + 1}/{TRAIN_EPISODES} ===")
+            val_reward = run_validation_episode(val_env, agent)
+            
+            # Save if validation performance improved
+            if val_reward > best_val_reward:
+                best_val_reward = val_reward
+                agent.save_checkpoint('best')
+                print(f"\nNew best validation reward: {float(val_reward):.2f}")
         
-        while not done:
-            val_steps += 1
-            action = agent.act(state, training=False)
-            
-            # Log action being taken
-            action_type = ["HOLD", "LONG", "SHORT"][action]
-            print(f"Step {val_steps}: Taking action {action_type}")
-            
-            next_state, reward, done, _ = val_env.step(action)
-            val_reward += float(reward)
-            state = next_state
-            
-            # Print status every step
-            print(f"  Active Trades: {val_env.active_trades}/{MAX_TRADES}")
-            print(f"  Step Reward: {float(reward):.2f}")
-            print(f"  Total Val Reward: {float(val_reward):.2f}")
-            
-            if not val_env.verify_trade_limits():
-                print("Trade limit verification failed during validation!")
-                break
-        
-        # Save if validation performance improved
-        if val_reward > best_val_reward:
-            best_val_reward = val_reward
-            agent.save_checkpoint('best')
-            print(f"\nNew best validation reward: {float(val_reward):.2f}")
-        
-        print(f"\nEpisode {episode + 1}/{episodes}")
+        print(f"\nEpisode {episode + 1}/{TRAIN_EPISODES}")
         print(f"Training Steps: {steps}, Train Reward: {float(episode_reward):.2f}")
-        print(f"Validation Steps: {val_steps}, Val Reward: {float(val_reward):.2f}")
 
     # Test agent performance
     print("\nTesting agent performance...")
@@ -195,7 +173,7 @@ def train_day():
     
     # Save results
     results = {
-        'training_reward': total_reward / episodes,
+        'training_reward': total_reward / TRAIN_EPISODES,
         'validation_reward': best_val_reward,
         'test_reward': float(episode_reward),
         'test_trades_opened': test_trades_opened,
@@ -238,6 +216,34 @@ def train_day():
     print(f"Winning trades: {results['winning_trades']}")
     print(f"Losing trades: {results['losing_trades']}")
     print(f"Win rate: {results['win_rate']:.2f}")
+
+# Add new helper function for validation
+def run_validation_episode(val_env, agent):
+    state = val_env.reset()
+    done = False
+    val_reward = 0
+    val_steps = 0
+    
+    while not done:
+        val_steps += 1
+        action = agent.act(state, training=False)
+        
+        action_type = ["HOLD", "LONG", "SHORT"][action]
+        print(f"Step {val_steps}: Taking action {action_type}")
+        
+        next_state, reward, done, _ = val_env.step(action)
+        val_reward += float(reward)
+        state = next_state
+        
+        print(f"  Active Trades: {val_env.active_trades}/{MAX_TRADES}")
+        print(f"  Step Reward: {float(reward):.2f}")
+        print(f"  Total Val Reward: {float(val_reward):.2f}")
+        
+        if not val_env.verify_trade_limits():
+            print("Trade limit verification failed during validation!")
+            break
+    
+    return val_reward
 
 if __name__ == "__main__":
     train_day() 

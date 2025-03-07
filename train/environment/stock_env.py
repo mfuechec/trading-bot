@@ -35,6 +35,18 @@ class StockEnv(Env):
         self.WIN_THRESHOLD = WIN_THRESHOLD
         self.LOSS_THRESHOLD = LOSS_THRESHOLD
         
+        # Initialize balance tracking
+        self.initial_balance = 10000.0  # Starting with $10,000
+        self.balance = self.initial_balance
+        
+        # Position tracking
+        self.train_positions = []
+        self.val_positions = []
+        self.test_positions = []
+        self.train_active_trades = 0
+        self.val_active_trades = 0
+        self.test_active_trades = 0
+        
         # Reset state
         self.reset()
         
@@ -62,14 +74,18 @@ class StockEnv(Env):
     def reset(self):
         """Reset the environment state."""
         self.current_step = 0
+        self.balance = self.initial_balance  # Reset balance
         
-        # Reset all trade tracking
-        self.train_active_trades = 0
-        self.val_active_trades = 0
-        self.test_active_trades = 0
-        self.train_positions = []
-        self.val_positions = []
-        self.test_positions = []
+        # Reset positions and active trades based on mode
+        if self.mode == 'train':
+            self.train_positions = []
+            self.train_active_trades = 0
+        elif self.mode == 'validation':
+            self.val_positions = []
+            self.val_active_trades = 0
+        else:  # test mode
+            self.test_positions = []
+            self.test_active_trades = 0
         
         print(f"\nNew Episode: Maintaining {self.train_active_trades} training trades and {self.val_active_trades} validation trades")
         return self.get_state()
@@ -213,14 +229,18 @@ class StockEnv(Env):
         return len(self.positions) > 0
         
     def open_position(self, position_type, entry_price, entry_time):
-        """Opens a new position and increments active trades counter."""
+        """Open a new position and update balance"""
         position = {
             'type': position_type,
             'entry_price': entry_price,
-            'entry_time': entry_time
+            'entry_time': entry_time,
+            'size': 100  # Standard position size of 100 shares
         }
         
-        # Add position to correct list based on mode
+        # Deduct transaction costs
+        transaction_cost = entry_price * position['size'] * 0.001  # 0.1% transaction fee
+        self.balance -= transaction_cost
+        
         if self.mode == 'train':
             self.train_positions.append(position)
             self.train_active_trades += 1
@@ -232,6 +252,22 @@ class StockEnv(Env):
             self.test_active_trades += 1
             
         print(f"Opened {position_type} position in {self.mode} mode. Active trades: {self.active_trades}")
+
+    def close_position(self, position, current_price):
+        """Close a position and update balance"""
+        size = position['size']
+        entry_price = position['entry_price']
+        
+        if position['type'] == 'LONG':
+            pnl = (current_price - entry_price) * size
+        else:  # SHORT
+            pnl = (entry_price - current_price) * size
+        
+        # Deduct transaction costs
+        transaction_cost = current_price * size * 0.001  # 0.1% transaction fee
+        self.balance += pnl - transaction_cost
+        
+        return pnl
 
     def get_state(self):
         """Returns the current state of the environment."""
