@@ -12,7 +12,8 @@ from train.utils.config import (
     HISTORY_FILE, 
     RESULTS_FILE, 
     CHECKPOINT_DIR,
-    BEST_WEIGHTS_FILE
+    BEST_WEIGHTS_FILE,
+    EPISODES
 )
 from train.utils.indicators import prepare_features
 
@@ -102,11 +103,10 @@ def train_day():
     print("\nStarting training...")
     best_val_reward = float('-inf')
     total_reward = 0
-    episodes = 100  # Number of episodes to train
     
-    for episode in range(episodes):
+    for episode in range(EPISODES):
         # Training episode
-        print(f"\n=== Training Episode {episode + 1}/{episodes} ===")
+        print(f"\n=== Training Episode {episode + 1}/{EPISODES} ===")
         state = train_env.reset()
         done = False
         episode_reward = 0
@@ -134,7 +134,7 @@ def train_day():
         total_reward += episode_reward
         
         # Single Validation episode after each training episode
-        print(f"\n=== Validation Episode {episode + 1}/{episodes} ===")
+        print(f"\n=== Validation Episode {episode + 1}/{EPISODES} ===")
         val_reward = 0
         state = val_env.reset() if episode == 0 else next_state  # Only reset on first episode
         done = False
@@ -167,7 +167,7 @@ def train_day():
             agent.save_checkpoint('best')
             print(f"\nNew best validation reward: {float(val_reward):.2f}")
         
-        print(f"\nEpisode {episode + 1}/{episodes}")
+        print(f"\nEpisode {episode + 1}/{EPISODES}")
         print(f"Training Steps: {steps}, Train Reward: {float(episode_reward):.2f}")
         print(f"Validation Steps: {val_steps}, Val Reward: {float(val_reward):.2f}")
 
@@ -195,7 +195,7 @@ def train_day():
     
     # Save results
     results = {
-        'training_reward': total_reward / episodes,
+        'training_reward': total_reward / EPISODES,
         'validation_reward': best_val_reward,
         'test_reward': float(episode_reward),
         'test_trades_opened': test_trades_opened,
